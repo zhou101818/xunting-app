@@ -159,6 +159,8 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
   .side-foot{display:none}
   #topbar{padding:10px 14px 0}
   .todayStat{font-size:12px;overflow:hidden;text-overflow:ellipsis}
+  .todayStat .cum{display:none}
+  .st th:nth-child(4),.st td:nth-child(4){display:none}
   .tab{padding:9px 10px;gap:5px}
   #content{padding:12px 14px 140px}
   .thead,.trow{grid-template-columns:30px minmax(0,1fr) 52px 92px;padding:9px 8px}
@@ -211,7 +213,7 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
       <button class="tab" id="tab-stats"><svg class="ic"><use href="#i-chart"/></svg>统计</button>
       <button class="tab" id="tab-sched"><svg class="ic"><use href="#i-clock"/></svg>定时</button>
     </div>
-    <div class="todayStat">今日 <b id="todayTop">0 分钟</b> · 累计 <b id="totalTop">0 分钟</b></div>
+    <div class="todayStat">今日 <b id="todayTop">0 分钟</b><span class="cum"> · 累计 <b id="totalTop">0 分钟</b></span></div>
   </div>
   <div id="banner"></div>
 
