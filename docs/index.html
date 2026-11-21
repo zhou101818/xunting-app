@@ -32,6 +32,8 @@ svg.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;str
 .side-sub{padding:0 16px 12px;color:var(--sub);font-size:12px}
 #addBtn{margin:0 14px 10px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--acc);color:#fff;border:none;border-radius:11px;padding:9px 12px;cursor:pointer;font-weight:600}
 #addBtn:hover{background:var(--acc-d)}
+#addFilesBtn{margin:0 14px 10px;display:none;background:transparent;border:1px dashed var(--line);color:var(--sub);border-radius:10px;padding:7px 10px;cursor:pointer;font-size:12px}
+#addFilesBtn:hover{border-color:var(--acc);color:var(--acc-d)}
 #albumList{flex:1;overflow:auto;padding:4px 8px 8px}
 .acard{position:relative;display:block;padding:10px 12px;border-radius:12px;cursor:pointer;border:1px solid transparent;margin-bottom:4px}
 .acard:hover{background:#F3EDE0}
@@ -197,6 +199,7 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
   <div class="logo"><span class="mark"><svg class="ic"><use href="#i-play"/></svg></span>熏听记录</div>
   <div class="side-sub">本地文件夹 · 顺序播放 · 定时收听 · 时长记录</div>
   <button id="addBtn"><svg class="ic"><use href="#i-plus"/></svg><span id="addBtnText">添加文件夹</span></button>
+  <button id="addFilesBtn" style="display:none">选择音频文件（少量）</button>
   <div id="albumList"></div>
   <div class="side-foot">数据仅保存在本设备浏览器<br>不会上传任何文件</div>
 </aside>
@@ -459,10 +462,16 @@ function banner(msg){
 }
 
 /* ============ 文件访问 ============ */
-/* 统一解析某个 track 对应的 File 对象 */
-async function trackFile(t){
+/* 统一解析某个 track 对应的 Blob */
+async function trackBlob(a, t){
   if (t.file) return t.file;
   if (t.fileHandle) return await t.fileHandle.getFile();
+  if (a && a.kind === 'native'){
+    const FI = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.FolderImport;
+    if (!FI) throw new Error('本地播放插件未就绪');
+    const r = await FI.readAudio({ albumId: a.id, path: t.path });
+    return new Blob([b64ToBytes(r.data)], { type: 'audio/mpeg' });
+  }
   throw new Error('no source');
 }
 
@@ -595,13 +604,53 @@ async function nativePickFiles(){
     toast('文件选择失败：' + msg);
   }
 }
+/* APK 原生文件夹导入（选整夹 → 递归扫描 → 复制进应用内） */
+async function nativeImportFolder(){
+  const FI = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.FolderImport;
+  if (!FI){ toast('文件夹导入插件未就绪，请更新 APK'); return; }
+  let picked;
+  try{
+    picked = await FI.pickFolder();
+  }catch(e){
+    const msg = (e && (e.message || e.toString())) || '';
+    if (!/cancel/i.test(msg)) toast('打开文件夹选择器失败：' + msg);
+    return;
+  }
+  const name = ((picked && picked.name) || '我的文件夹').trim() || '我的文件夹';
+  if (!confirm('导入文件夹「' + name + '」？\n将扫描其中（含子文件夹）的所有音频并复制到应用内，原文件不受影响。')) return;
+  const albumId = genId();
+  toast('正在导入「' + name + '」，请稍候');
+  let res;
+  try{
+    res = await FI.importFolder({ uri: picked.uri, albumId: albumId });
+  }catch(e){
+    toast('导入失败：' + ((e && (e.message || e.toString())) || e));
+    return;
+  }
+  const list = (res && res.files) || [];
+  if (!list.length){
+    toast('该文件夹里没有找到音频文件');
+    try{ await FI.removeAlbum({ albumId: albumId }); }catch(e){}
+    return;
+  }
+  const files = list.map(f=>({ path: f.path, name: f.name }));
+  try{ await idbSet('files:' + albumId, files); }catch(e){}
+  const a = { id: albumId, name: name, kind:'native', status:'scanning', tracks:[], currentIdx:0 };
+  albums.push(a);
+  curAlbumId = albumId;
+  albumStats(albumId).name = name;
+  saveAll();
+  renderAlbums(); renderTracks(); switchTab('play');
+  await finalizeScan(a, files);
+  toast('已导入 ' + files.length + ' 个音频');
+}
 async function addFolder(){
-  if (IS_NATIVE){ await nativePickFiles(); return; }
+  if (IS_NATIVE){ await nativeImportFolder(); return; }
   if (HAS_DIR){ await addFolderByDir(); }
   else { pickFiles(); }
 }
 async function ensurePerm(a){
-  if (a.kind === 'files') return a.tracks && a.tracks.length > 0;
+  if (a.kind === 'files' || a.kind === 'native') return a.tracks && a.tracks.length > 0;
   if (!a.handle){ toast('文件夹句柄丢失，请删除后重新添加'); return false; }
   let p = 'granted';
   try{ p = await a.handle.queryPermission({ mode:'read' }); }catch(e){}
@@ -621,13 +670,14 @@ async function persistHandles(){
 function queueDurations(){
   const a = curAlbum();
   if (!a || a.status !== 'ready') return;
-  durQueue = a.tracks.filter(t=>!t.dur);
+  durQueue = a.tracks.filter(t=>!t.dur && (t.file || t.fileHandle));
   pumpDur();
 }
 function probeTrack(t){
   return new Promise(async (res)=>{
+    if (!t.file && !t.fileHandle){ return res(0); }
     let file;
-    try{ file = await trackFile(t); }catch(e){ return res(0); }
+    try{ file = await (t.file || t.fileHandle.getFile()); }catch(e){ return res(0); }
     const url = URL.createObjectURL(file);
     const au = new Audio();
     let finished = false;
@@ -895,7 +945,7 @@ async function playTrack(a, i, resume){
   savePosNow();
   const t = a.tracks[i];
   let file;
-  try{ file = await trackFile(t); }
+  try{ file = await trackBlob(a, t); }
   catch(e){ toast('读取文件失败：' + t.path); return; }
   if (curUrl) URL.revokeObjectURL(curUrl);
   curUrl = URL.createObjectURL(file);
@@ -1082,7 +1132,20 @@ audio.addEventListener('error', ()=>{
     toast('连续多个文件播放失败，已停止自动跳转');
   }
 });
-audio.addEventListener('loadedmetadata', updatePlayerUI);
+audio.addEventListener('loadedmetadata', ()=>{
+  const a = curAlbum();
+  const t = a && curIdx >= 0 ? a.tracks[curIdx] : null;
+  if (t && !t.dur && audio.duration && isFinite(audio.duration) && audio.duration > 0){
+    t.dur = audio.duration;
+    const m = albumStats(a.id).files[t.path];
+    if (m) m.dur = t.dur;
+    const cell = document.querySelector('[data-durpath="' + CSS.escape(t.path) + '"]');
+    if (cell) cell.textContent = fmtDur(t.dur);
+    updateAlbMeta();
+    saveSoon();
+  }
+  updatePlayerUI();
+});
 document.addEventListener('visibilitychange', ()=>{
   if (document.visibilityState === 'hidden'){ savePosNow(); LS.set('xt.stats', stats); }
 });
@@ -1127,6 +1190,7 @@ setInterval(()=>{
 /* ============ 事件绑定 ============ */
 $('addBtn').addEventListener('click', addFolder);
 $('emptyAdd').addEventListener('click', addFolder);
+$('addFilesBtn').addEventListener('click', nativePickFiles);
 $('filePick').addEventListener('change', onFilesPicked);
 $('albumList').addEventListener('click', async e=>{
   const del = e.target.closest('[data-del]');
@@ -1139,6 +1203,11 @@ $('albumList').addEventListener('click', async e=>{
     if (idx >= 0) albums.splice(idx, 1);
     delete stats.albums[id];
     if (a.kind === 'files'){ try{ await idbDel('files:'+id); }catch(err){} }
+    if (a.kind === 'native'){
+      try{ await idbDel('files:'+id); }catch(err){}
+      const FI = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.FolderImport;
+      if (FI){ try{ await FI.removeAlbum({ albumId: id }); }catch(err){} }
+    }
     if (curAlbumId === id){
       audio.pause();
       if (curUrl){ URL.revokeObjectURL(curUrl); curUrl = ''; }
@@ -1176,6 +1245,7 @@ $('btnRescan').addEventListener('click', async ()=>{
   const a = curAlbum();
   if (!a) return;
   if (a.kind === 'files'){ toast('手机文件模式无需重新扫描；如文件有更新，请删除专辑后重新选择'); return; }
+  if (a.kind === 'native'){ toast('文件夹导入模式无需重新扫描；如内容有变化，请删除后重新导入'); return; }
   if (a.status === 'auth'){ const ok = await ensurePerm(a); if (!ok) return; }
   await scanAlbum(a);
 });
@@ -1240,11 +1310,17 @@ $('clearBtn').addEventListener('click', ()=>{
   audio.volume = settings.volume == null ? 1 : settings.volume;
   audio.playbackRate = settings.speed || 1;
   /* 环境适配文案 */
-  if (IS_NATIVE || !HAS_DIR){
+  if (IS_NATIVE){
+    $('addBtnText').textContent = '导入文件夹';
+    $('emptyAddText').textContent = '导入第一个文件夹';
+    $('emptyTitle').textContent = '还没有专辑';
+    $('emptyDesc').innerHTML = '点击下方按钮选择手机上的一个文件夹<br>会自动扫描其中（含子文件夹）的所有音频并复制到应用内<br>支持 mp3 / m4a / aac / wav / flac / ogg / opus 等常见格式';
+    $('addFilesBtn').style.display = 'block';
+  } else if (!HAS_DIR){
     $('addBtnText').textContent = '选择音频文件';
     $('emptyAddText').textContent = '选择音频文件';
     $('emptyTitle').textContent = '还没有歌单';
-    $('emptyDesc').innerHTML = (IS_NATIVE ? '点击下方按钮，从手机中选择音频文件（可一次多选、支持进入文件夹）<br>' : '点击下方按钮，从设备中选择音频文件（可一次多选）<br>') + '选择后会缓存到本应用，之后无需重复选择<br>支持 mp3 / m4a / aac / wav / flac / ogg / opus 等常见格式';
+    $('emptyDesc').innerHTML = '点击下方按钮，从设备中选择音频文件（可一次多选）<br>选择后会缓存到本应用，之后无需重复选择<br>支持 mp3 / m4a / aac / wav / flac / ogg / opus 等常见格式';
   }
   if (!('showDirectoryPicker' in window) && window.isSecureContext !== true){
     banner('当前环境功能受限：无法直接选择文件夹。已启用「选择音频文件」模式；如需文件夹模式，请用 Chrome 或 Edge 并通过 HTTPS 打开本页面。');
@@ -1267,7 +1343,7 @@ $('clearBtn').addEventListener('click', ()=>{
         a.status = 'missing';
       }
     } else {
-      const a = { id:m.id, name:m.name || '未命名', kind:'files', status:'init', tracks:[], currentIdx:m.currentIdx||0 };
+      const a = { id:m.id, name:m.name || '未命名', kind:(m.kind === 'native' ? 'native' : 'files'), status:'init', tracks:[], currentIdx:m.currentIdx||0 };
       albums.push(a);
       let files = null;
       try{ files = await idbGet('files:'+m.id); }catch(e){}
