@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">熏听记录</string>
+    <string name="title_activity_main">熏听记录</string>
+    <string name="package_name">com.zhou101818.xunting</string>
+    <string name="custom_url_scheme">com.zhou101818.xunting</string>
+</resources>

@@ -1,0 +1,11 @@
+{
+  "appId": "com.zhou101818.xunting",
+  "appName": "熏听记录",
+  "webDir": "docs",
+  "android": {
+    "allowMixedContent": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

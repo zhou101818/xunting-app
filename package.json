@@ -1,0 +1,13 @@
+{
+  "name": "xunting-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "熏听记录 - 本地音频熏听播放与收听时长记录",
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
