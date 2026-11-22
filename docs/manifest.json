@@ -1,14 +1,14 @@
 {
   "name": "熏听记录",
   "short_name": "熏听",
-  "description": "本地音频熏听播放与收听时长记录",
+  "description": "本地音频熏听播放与收听时长记录 · 磁带式熏听机",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#F6F2EA",
-  "theme_color": "#D9782D",
+  "background_color": "#F3ECDF",
+  "theme_color": "#B4541F",
   "icons": [
     { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

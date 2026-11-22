@@ -4,175 +4,227 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>熏听记录</title>
-<meta name="theme-color" content="#D9782D">
-<meta name="description" content="本地音频熏听播放与收听时长记录">
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%23D9782D'/%3E%3Cpath d='M9 8v6.2a2.3 2.3 0 1 0 1.4 2.1V10h4.2v3.2a2.3 2.3 0 1 0 1.4 2.1V8z' fill='white'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="theme-color" content="#D9782D">
+<meta name="theme-color" content="#B4541F">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="熏听">
+<meta name="description" content="本地音频熏听播放与收听时长记录">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='5' width='20' height='14' rx='2.5' fill='%23B4541F'/%3E%3Ccircle cx='9' cy='12' r='2.6' fill='%23FBF3E2'/%3E%3Ccircle cx='15' cy='12' r='2.6' fill='%23FBF3E2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 :root{
-  --bg:#F6F2EA; --panel:#FFFDF8; --ink:#2D2922; --sub:#8B8272; --line:#EAE2D3;
-  --acc:#D9782D; --acc-d:#B95F1A; --acc-soft:#F7E8D8; --ok:#4E9A61; --warn:#C93B2E;
-  --shadow:0 1px 2px rgba(60,50,30,.05),0 4px 14px rgba(60,50,30,.06);
+  --paper:#F3ECDF; --panel:#FBF7EE; --raise:#FFFCF5;
+  --ink:#2B2419; --ink2:#776B57; --line:#DCD0BA; --line2:#C9B99E;
+  --accent:#B4541F; --accent-2:#8E3F12; --accent-soft:#EFE0C9;
+  --ok:#5F7C4B; --warn:#B4432B;
+  --shadow:0 1px 0 rgba(43,36,25,.05), 0 10px 26px rgba(93,72,40,.09);
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",serif;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;display:flex;background:var(--bg);color:var(--ink);font:14px/1.6 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
-button{font:inherit}
+body{
+  margin:0;display:flex;overflow:hidden;color:var(--ink);
+  background:var(--paper);
+  background-image:radial-gradient(rgba(43,36,25,.03) 1px, transparent 1px);
+  background-size:3px 3px;
+  font:14px/1.65 "Microsoft YaHei","PingFang SC",system-ui,-apple-system,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font:inherit;color:inherit}
 svg.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:block;flex:none}
-/* ===== 侧栏 ===== */
-#side{width:268px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column}
-.logo{display:flex;align-items:center;gap:10px;padding:18px 16px 10px;font-size:17px;font-weight:700}
-.logo .mark{width:30px;height:30px;border-radius:9px;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center}
-.side-sub{padding:0 16px 12px;color:var(--sub);font-size:12px}
-#addBtn{margin:0 14px 10px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--acc);color:#fff;border:none;border-radius:11px;padding:9px 12px;cursor:pointer;font-weight:600}
-#addBtn:hover{background:var(--acc-d)}
-#addFilesBtn{margin:0 14px 10px;display:none;background:transparent;border:1px dashed var(--line);color:var(--sub);border-radius:10px;padding:7px 10px;cursor:pointer;font-size:12px}
-#addFilesBtn:hover{border-color:var(--acc);color:var(--acc-d)}
-#albumList{flex:1;overflow:auto;padding:4px 8px 8px}
-.acard{position:relative;display:block;padding:10px 12px;border-radius:12px;cursor:pointer;border:1px solid transparent;margin-bottom:4px}
-.acard:hover{background:#F3EDE0}
-.acard.active{background:var(--acc-soft);border-color:#EBD5BC}
-.acard .an{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:20px}
-.acard .am{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px;margin-top:2px}
-.dot{width:8px;height:8px;border-radius:50%;flex:none;background:#C9C0AE}
-.dot.ok{background:var(--ok)} .dot.warn{background:#E0A23C} .dot.bad{background:var(--warn)}
-.acard .del{position:absolute;right:6px;top:8px;width:24px;height:24px;border:none;background:transparent;border-radius:8px;color:var(--sub);cursor:pointer;display:none;align-items:center;justify-content:center}
+/* ===== 侧栏：磁带盒 ===== */
+#side{width:272px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column}
+.brand{display:flex;align-items:baseline;gap:9px;padding:20px 18px 2px}
+.brand h1{margin:0;font:600 21px/1.25 var(--serif);letter-spacing:3px}
+.brand small{color:var(--ink2);font-size:10px;letter-spacing:3px}
+.side-sub{padding:0 18px 12px;color:var(--ink2);font-size:11px;letter-spacing:1px}
+#addBtn{
+  margin:2px 14px 6px;display:flex;align-items:center;justify-content:center;gap:7px;
+  background:var(--accent);color:#FBF3E2;border:1px solid var(--accent-2);border-radius:10px;
+  padding:9px 12px;cursor:pointer;font-weight:600;box-shadow:0 2px 0 var(--accent-2);
+}
+#addBtn:hover{background:var(--accent-2)}
+#addBtn:active{transform:translateY(2px);box-shadow:none}
+#addFilesBtn{margin:0 14px 10px;display:none;background:transparent;border:1px dashed var(--line2);color:var(--ink2);border-radius:9px;padding:7px 10px;cursor:pointer;font-size:12px}
+#addFilesBtn:hover{border-color:var(--accent);color:var(--accent)}
+#albumList{flex:1;overflow:auto;padding:6px 10px 10px}
+.acard{position:relative;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;cursor:pointer;border:1px solid transparent;margin-bottom:5px}
+.acard:hover{background:#F6EFE1;border-color:var(--line)}
+.acard.active{background:#EDDCBE;border-color:#CBAA7C;box-shadow:inset 3px 0 0 var(--accent)}
+.tape-ico{width:38px;height:26px;flex:none;color:var(--ink);opacity:.85}
+.acard.active .tape-ico{color:var(--accent-2)}
+.acard-main{min-width:0;flex:1}
+.acard .an{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px;line-height:1.4}
+.acard .am{font-size:11px;color:var(--ink2);display:flex;align-items:center;gap:5px;margin-top:2px;white-space:nowrap;overflow:hidden;line-height:1.4}
+.dot{width:7px;height:7px;border-radius:50%;flex:none;background:#C9C0AE}
+.dot.ok{background:var(--ok)} .dot.warn{background:#D89A3C} .dot.bad{background:var(--warn)}
+.acard .del{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:none;background:transparent;border-radius:7px;color:var(--ink2);cursor:pointer;display:none;align-items:center;justify-content:center}
 .acard:hover .del{display:flex}
-.acard .del:hover{background:#EAD9C2;color:var(--warn)}
-.side-foot{padding:10px 16px 14px;border-top:1px solid var(--line);color:var(--sub);font-size:12px}
+.acard .del:hover{background:#EADCC4;color:var(--warn)}
+.side-foot{padding:10px 18px 14px;border-top:1px solid var(--line);color:var(--ink2);font-size:11px;line-height:1.7}
 /* ===== 主区 ===== */
 #main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
 #topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 0;gap:10px}
-.tabs{display:flex;gap:6px}
-.tab{border:none;background:transparent;padding:8px 14px;border-radius:10px;cursor:pointer;color:var(--sub);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
-.tab:hover{color:var(--acc-d)}
-.tab.active{background:var(--acc-soft);color:var(--acc-d);font-weight:600}
-.todayStat{color:var(--sub);font-size:13px;white-space:nowrap}
-.todayStat b{color:var(--ink)}
-#banner{display:none;margin:12px 24px 0;padding:10px 14px;background:#FBEADF;border:1px solid #EBC9A8;border-radius:10px;color:#8A4A12;font-size:13px}
-#content{flex:1;overflow:auto;padding:18px 24px 130px;-webkit-overflow-scrolling:touch}
+.tabs{display:flex;gap:4px}
+.tab{border:none;background:transparent;padding:8px 14px;border-radius:9px;cursor:pointer;color:var(--ink2);display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-family:var(--serif);letter-spacing:1px}
+.tab:hover{color:var(--accent-2)}
+.tab.active{background:var(--accent-soft);color:var(--accent-2);font-weight:600;box-shadow:inset 0 0 0 1px #DFC6A0}
+.todayStat{color:var(--ink2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.todayStat b{color:var(--ink);font-variant-numeric:tabular-nums}
+#banner{display:none;margin:12px 24px 0;padding:10px 14px;background:#FBEDD9;border:1px solid #E5C8A2;border-radius:9px;color:#7A4413;font-size:12.5px}
+#content{flex:1;overflow:auto;padding:18px 26px 128px;-webkit-overflow-scrolling:touch}
 .pane{display:none}
-/* ===== 播放页 ===== */
-.alb-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
-.alb-head h2{margin:0;font-size:19px;word-break:break-all}
-.alb-actions{display:flex;gap:8px;flex-wrap:wrap}
-.alb-meta{color:var(--sub);font-size:13px;margin-bottom:14px}
-.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:7px 12px;cursor:pointer}
-.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
-.btn.pri:hover{background:var(--acc-d)}
-#dlgOv{position:fixed;inset:0;background:rgba(35,28,20,.45);z-index:120;display:none;align-items:center;justify-content:center;padding:20px}
-.dlg{background:var(--panel);border-radius:14px;padding:18px;width:min(360px,92vw);box-shadow:var(--shadow)}
-.dlg-t{font-weight:600;margin-bottom:10px}
-#dlgInput{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 12px;font:inherit;margin-bottom:14px;background:#fff;color:var(--ink)}
-#dlgInput:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
-.dlg-b{display:flex;gap:10px;justify-content:flex-end}
-.btn:hover{border-color:var(--acc);color:var(--acc-d)}
-.thead,.trow{display:grid;grid-template-columns:36px minmax(0,1fr) 64px 68px 120px;align-items:center;gap:10px;padding:7px 12px}
-.thead{color:var(--sub);font-size:12px;border-bottom:1px solid var(--line)}
-.trow{border-radius:11px;cursor:pointer}
-.trow:hover{background:#F3EDE0}
-.trow.playing{background:var(--acc-soft);box-shadow:inset 3px 0 0 var(--acc)}
-.t-idx{color:var(--sub);text-align:center;font-size:12px}
+/* ===== 磁带面板 ===== */
+.deck{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px 12px;box-shadow:var(--shadow);margin-bottom:16px}
+.deck-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.deck-flag{font:600 10px/1 var(--serif);letter-spacing:2px;color:#FBF3E2;background:var(--accent);border-radius:4px;padding:3px 6px;align-self:center}
+.deck-top h2{margin:0;font:600 17px/1.3 var(--serif);letter-spacing:1px;word-break:break-all}
+.deck-side{margin-left:auto;color:var(--ink2);font-size:11.5px}
+.cassette{position:relative;max-width:440px;margin:2px auto 6px}
+.tape-svg{width:100%;display:block;filter:drop-shadow(0 6px 10px rgba(93,72,40,.1))}
+.tape-label{position:absolute;left:9%;right:9%;top:12%;height:28%;pointer-events:none}
+.tape-name{font:600 17px/1.35 var(--serif);letter-spacing:1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#3A3021}
+.tape-sub{font-size:11px;color:#8A7A5E;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.reel{animation:reelspin 3.4s linear infinite;animation-play-state:paused;transform-box:view-box}
+.cassette.spinning .reel{animation-play-state:running}
+.cassette.spinning{animation:none}
+@keyframes reelspin{to{transform:rotate(360deg)}}
+.deckbar{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px dashed var(--line2);padding-top:10px;margin-top:2px;flex-wrap:wrap}
+.counter{display:flex;align-items:center;gap:8px}
+.counter span{font:600 15px/1 "Courier New",monospace;letter-spacing:2px;color:#F3E4C8;background:#2B2419;border-radius:6px;padding:6px 10px;box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
+.counter em{font-style:normal;font-size:10px;color:var(--ink2);letter-spacing:3px}
+.deck-actions{display:flex;gap:10px;flex-wrap:wrap}
+.deck-actions .btn{padding:7px 12px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--raise);color:var(--ink);border-radius:9px;padding:6px 11px;cursor:pointer;font-size:12.5px}
+.btn:hover{border-color:var(--accent);color:var(--accent-2)}
+.btn.pri{background:var(--accent);border-color:var(--accent-2);color:#FBF3E2;box-shadow:0 2px 0 var(--accent-2)}
+.btn.pri:hover{background:var(--accent-2)}
+/* ===== 曲目表 ===== */
+.theader,.trow{display:grid;grid-template-columns:36px minmax(0,1fr) 64px 68px 116px;align-items:center;gap:10px;padding:7px 12px}
+.theader{color:var(--ink2);font-size:11px;letter-spacing:1px;border-bottom:1px solid var(--line)}
+.theader div:nth-child(3),.theader div:nth-child(4){text-align:right}
+.theader div:nth-child(1){text-align:center}
+.trow{border-radius:8px;cursor:pointer}
+.trow:hover{background:#F5EEE0}
+.trow.playing{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.trow.done .t-name{color:var(--ink2)}
+.t-idx{color:var(--ink2);text-align:center;font:11px/1 "Courier New",monospace;letter-spacing:1px;display:block;width:100%}
 .t-idx svg{margin:0 auto;color:var(--ok)}
 .t-name{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
-.t-dur,.t-listen{color:var(--sub);font-size:12px;font-variant-numeric:tabular-nums}
-.t-bar{height:5px;background:#EFE7D8;border-radius:3px;overflow:hidden}
-.t-bar i{display:block;height:100%;background:var(--acc);border-radius:3px}
-.empty{text-align:center;padding:80px 20px 40px;color:var(--sub)}
-.empty h3{color:var(--ink);margin:0 0 6px}
+.trow.playing .t-name{color:var(--accent-2);font-weight:600}
+.t-dur,.t-listen{color:var(--ink2);font-size:12px;font-variant-numeric:tabular-nums;font-family:"Courier New",monospace;text-align:right}
+.t-bar{height:6px;background:#E3D7BF;border-radius:3px;overflow:hidden;position:relative}
+.t-bar i{display:block;height:100%;background:var(--accent);border-radius:3px;opacity:.75}
+.empty{text-align:center;padding:56px 20px 40px;color:var(--ink2)}
+.empty h3{color:var(--ink);margin:14px 0 6px;font:600 19px/1.3 var(--serif);letter-spacing:2px}
+.empty p{font-size:12.5px;line-height:2}
+.empty-tape{width:132px;margin:0 auto;opacity:.85}
 .empty .btn{margin-top:16px}
-/* ===== 统计页 ===== */
-.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
-.scard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow)}
-.scard .lab{color:var(--sub);font-size:12px}
-.scard b{font-size:21px;display:block;margin-top:2px;font-variant-numeric:tabular-nums}
+/* ===== 账本（统计） ===== */
+.ledger{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+.ledger-head{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 8px;border-bottom:1px solid var(--line)}
+.ledger-head h3{margin:0;font:600 15px/1.3 var(--serif);letter-spacing:2px}
+.ledger-head small{color:var(--ink2);font-size:10.5px;letter-spacing:1px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr)}
+.scell{padding:14px 18px;border-right:1px dashed var(--line)}
+.scell:last-child{border-right:none}
+.scell .lab{color:var(--ink2);font-size:11px;letter-spacing:1px}
+.scell b{font:600 21px/1.4 var(--serif);display:block;margin-top:2px;font-variant-numeric:tabular-nums;letter-spacing:.5px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
-.card h3{margin:0 0 10px;font-size:15px;display:flex;align-items:center;gap:8px}
+.card h3{margin:0 0 10px;font:600 15px/1.3 var(--serif);display:flex;align-items:center;gap:8px;letter-spacing:1px}
 .card h3 .sw{margin-left:auto}
-.bars{display:flex;align-items:flex-end;gap:10px;height:160px;padding:8px 4px 0}
+.bars{display:flex;align-items:flex-end;gap:10px;height:158px;padding:8px 4px 0}
 .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px;min-width:0}
-.bar b{font-size:11px;font-weight:600;color:var(--ink)}
-.bar i{width:72%;max-width:46px;min-height:2px;background:var(--acc);border-radius:6px 6px 2px 2px;display:block}
-.bar em{font-size:11px;color:var(--sub);font-style:normal;white-space:nowrap}
+.bar b{font:600 10.5px/1 "Courier New",monospace;color:var(--ink)}
+.bar i{width:64%;max-width:44px;min-height:2px;background:var(--ink);border-radius:2px 2px 0 0;display:block;opacity:.78}
+.bar em{font-size:10.5px;color:var(--ink2);font-style:normal;white-space:nowrap}
 table.st{width:100%;border-collapse:collapse}
-.st th,.st td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
-.st th{color:var(--sub);font-weight:500;font-size:12px}
-.st td.num{font-variant-numeric:tabular-nums}
+.st th,.st td{padding:8px 10px;border-bottom:1px dotted var(--line2);text-align:left;font-size:12.5px}
+.st th{color:var(--ink2);font-weight:500;font-size:11px;letter-spacing:1px}
+.st td.num{font-variant-numeric:tabular-nums;font-family:"Courier New",monospace}
 details.det{margin:6px 0}
-details.det summary{cursor:pointer;color:var(--acc-d);font-size:13px;font-weight:600;padding:6px 0}
-.fx{display:flex;justify-content:space-between;gap:10px;padding:4px 10px;border-radius:8px;font-size:12px;color:var(--sub)}
-.fx:hover{background:#F3EDE0}
+details.det summary{cursor:pointer;color:var(--accent-2);font-size:12.5px;font-weight:600;padding:6px 0}
+.fx{display:flex;justify-content:space-between;gap:10px;padding:4px 10px;border-radius:7px;font-size:12px;color:var(--ink2)}
+.fx:hover{background:#F5EEE0}
 .fx .fn{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fx .fv{flex:none;font-variant-numeric:tabular-nums}
+.fx .fv{flex:none;font-variant-numeric:tabular-nums;font-family:"Courier New",monospace}
 .stat-foot{display:flex;gap:10px;align-items:center;margin-top:4px;flex-wrap:wrap}
-/* ===== 定时页 ===== */
+/* ===== 定时 ===== */
 .frow{display:flex;align-items:center;gap:12px;padding:4px 0}
-.frow span:first-child{width:110px;color:var(--sub)}
-input[type=time],input[type=number],select{border:1px solid var(--line);border-radius:9px;padding:6px 10px;background:#fff;color:var(--ink);font:inherit}
+.frow span:first-child{width:110px;color:var(--ink2)}
+input[type=time],input[type=number],select{border:1px solid var(--line2);border-radius:9px;padding:6px 10px;background:#fff;color:var(--ink);font:inherit}
 input[type=number]{width:90px}
-input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
-.hint{color:var(--sub);font-size:12px;margin:8px 0 0}
+input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
+.hint{color:var(--ink2);font-size:11.5px;margin:8px 0 0;line-height:1.9}
 .sw{position:relative;width:40px;height:22px;display:inline-block;flex:none}
 .sw input{opacity:0;width:0;height:0;position:absolute}
-.sw i{position:absolute;inset:0;background:#D8CFBE;border-radius:11px;transition:.2s;cursor:pointer}
-.sw i:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
-.sw input:checked + i{background:var(--acc)}
+.sw i{position:absolute;inset:0;background:#D5C9B2;border-radius:11px;transition:.2s;cursor:pointer;border:1px solid #C6B79C}
+.sw i:before{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;background:#FFFCF5;border-radius:50%;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.sw input:checked + i{background:var(--accent)}
 .sw input:checked + i:before{transform:translateX(18px)}
-.note ul{margin:6px 0 0;padding-left:18px;color:var(--sub);font-size:13px}
-.note li{margin:4px 0}
-/* ===== 播放条 ===== */
-#player{display:flex;align-items:center;gap:14px;padding:10px 18px;position:fixed;left:268px;right:0;bottom:0;z-index:50;border-top:1px solid var(--line);background:rgba(255,253,248,.97);backdrop-filter:blur(6px)}
-.p-info{width:190px;min-width:130px}
-.p-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.p-alb{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.p-ctrl{display:flex;align-items:center;gap:4px}
-.ibtn{width:34px;height:34px;border:none;background:transparent;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink)}
-.ibtn:hover{background:#F0E7D6}
-.ibtn.main{width:46px;height:46px;background:var(--acc);color:#fff}
-.ibtn.main:hover{background:var(--acc-d)}
-.ibtn.main svg{width:20px;height:20px}
-.ibtn.txt{width:auto;border-radius:10px;padding:0 10px;font-size:12px;color:var(--sub);height:30px;white-space:nowrap}
-#pTime{font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums;white-space:nowrap}
-#seek{flex:1;min-width:120px;accent-color:var(--acc)}
-#speed{width:66px}
-.p-vol{display:flex;align-items:center;gap:6px;color:var(--sub)}
-#vol{width:88px;accent-color:var(--acc)}
-#pLimit{font-size:12px;color:var(--acc-d);background:var(--acc-soft);border-radius:8px;padding:4px 9px;white-space:nowrap}
-#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#33302A;color:#fff;padding:9px 16px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:72vw}
+.note ul{margin:6px 0 0;padding-left:18px;color:var(--ink2);font-size:12.5px;line-height:1.9}
+/* ===== 底部操控台 ===== */
+#player{display:flex;align-items:center;gap:12px;padding:9px 18px;position:fixed;left:272px;right:0;bottom:0;z-index:50;border-top:1px solid var(--line);background:rgba(251,247,238,.97);backdrop-filter:blur(6px)}
+.p-info{width:176px;min-width:120px}
+.p-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
+.p-alb{font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.keys{display:flex;align-items:center;gap:6px}
+.key{width:40px;height:40px;border-radius:11px;border:1px solid var(--line2);background:var(--raise);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #D6C8AE;color:var(--ink)}
+.key:hover{border-color:var(--accent);color:var(--accent-2)}
+.key:active{transform:translateY(2px);box-shadow:none}
+.key.main{width:52px;height:52px;background:var(--accent);color:#FBF3E2;border-color:var(--accent-2);box-shadow:0 3px 0 var(--accent-2)}
+.key.main:hover{background:var(--accent-2)}
+.key.main svg{width:20px;height:20px}
+.key.main:active{transform:translateY(3px);box-shadow:none}
+#pTime{font:11.5px/1 "Courier New",monospace;color:var(--ink2);white-space:nowrap;letter-spacing:.5px}
+#seek{flex:1;min-width:110px;accent-color:var(--accent)}
+#speed{width:64px}
+.p-vol{display:flex;align-items:center;gap:6px;color:var(--ink2)}
+#vol{width:84px;accent-color:var(--accent)}
+.ibtn{width:auto;height:30px;border:1px solid var(--line2);background:var(--raise);border-radius:8px;padding:0 10px;cursor:pointer;font-size:11.5px;color:var(--ink2);white-space:nowrap}
+.ibtn:hover{border-color:var(--accent);color:var(--accent-2)}
+#pLimit{font-size:11px;color:var(--accent-2);background:var(--accent-soft);border:1px solid #DEC7A3;border-radius:7px;padding:3px 8px;white-space:nowrap}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#2B2419;color:#F3E4C8;padding:9px 16px;border-radius:9px;font-size:12.5px;opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:72vw;box-shadow:0 8px 20px rgba(0,0,0,.25)}
 #toast.show{opacity:1}
+/* ===== 命名对话框 ===== */
+#dlgOv{position:fixed;inset:0;background:rgba(35,28,20,.45);z-index:120;display:none;align-items:center;justify-content:center;padding:20px}
+.dlg{background:var(--panel);border-radius:14px;padding:18px;width:min(360px,92vw);box-shadow:var(--shadow);border:1px solid var(--line)}
+.dlg-t{font:600 15px/1.4 var(--serif);letter-spacing:1px;margin-bottom:10px}
+#dlgInput{width:100%;border:1px solid var(--line2);border-radius:9px;padding:9px 12px;font:inherit;margin-bottom:14px;background:#fff;color:var(--ink)}
+#dlgInput:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
+.dlg-b{display:flex;gap:10px;justify-content:flex-end}
 @media (max-width:740px){
   body{flex-direction:column}
   #side{width:100%;border-right:none;border-bottom:1px solid var(--line)}
-  .logo{padding:12px 14px 2px;font-size:16px}
-  .logo .mark{width:26px;height:26px;border-radius:8px}
+  .brand{padding:12px 14px 0}
+  .brand h1{font-size:18px}
   .side-sub{display:none}
-  #addBtn{margin:6px 12px 8px;padding:8px 12px}
-  #albumList{display:flex;overflow-x:auto;overflow-y:hidden;padding:2px 8px 10px;flex:none}
-  .acard{min-width:150px;flex:none;margin:0 6px 0 0;padding:8px 10px}
-  .acard .del{display:flex;right:2px;top:2px}
+  #addBtn{margin:8px 12px 8px;padding:8px 12px}
+  #albumList{display:flex;overflow-x:auto;overflow-y:hidden;padding:0 8px 10px;flex:none}
+  .acard{min-width:170px;flex:none;margin:0 6px 0 0;padding:8px 9px}
+  .acard .del{display:flex}
   .side-foot{display:none}
-  #topbar{padding:10px 14px 0}
-  .todayStat{font-size:12px;overflow:hidden;text-overflow:ellipsis}
+  #topbar{padding:8px 14px 0}
+  .todayStat{font-size:11.5px}
   .todayStat .cum{display:none}
-  .st th:nth-child(4),.st td:nth-child(4){display:none}
   .tab{padding:9px 10px;gap:5px}
-  #content{padding:12px 14px 140px}
-  .thead,.trow{grid-template-columns:30px minmax(0,1fr) 52px 92px;padding:9px 8px}
-  .thead div:nth-child(4),.t-listen{display:none}
-  #player{left:0;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom))}
-  .p-info{width:84px;min-width:80px}
+  #content{padding:12px 14px 150px}
+  .deck{padding:12px 12px 8px}
+  .deck-side{display:none}
+  .theader,.trow{grid-template-columns:30px minmax(0,1fr) 52px 92px;padding:9px 8px}
+  .theader div:nth-child(4),.t-listen{display:none}
+  .st th:nth-child(4),.st td:nth-child(4){display:none}
+  #player{left:0;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));flex-wrap:wrap;row-gap:6px}
+  .p-info{flex:1 1 auto;width:auto;min-width:0}
   #pTime{display:none}
   .p-vol{display:none}
   #speed{display:none}
   #pLimit{display:none}
-  #seek{min-width:50px}
-  .ibtn.txt{max-width:72px;overflow:hidden;text-overflow:ellipsis}
+  #seek{flex:1 1 calc(100% - 84px);min-width:0;order:3}
+  #btnLoop{order:4}
+  .counter em{display:none}
   #toast{bottom:90px}
 }
 </style>
@@ -195,22 +247,23 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
 <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 19.5h16"/><path d="M7.5 15.5v-5M12 15.5V7M16.5 15.5v-7.5"/></symbol>
 <symbol id="i-list" viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></symbol>
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M9.5 7V5h5v2M7 7l1 13h8l1-13"/></symbol>
+<symbol id="i-tape" viewBox="0 0 40 26"><rect x="1.5" y="1.5" width="37" height="23" rx="4.5"/><circle cx="13" cy="12" r="4.4"/><circle cx="27" cy="12" r="4.4"/><path d="M5.5 21.5h29"/><path d="M10.5 21.5l2-4M29.5 21.5l-2-4"/></symbol>
 </defs></svg>
 
 <aside id="side">
-  <div class="logo"><span class="mark"><svg class="ic"><use href="#i-play"/></svg></span>熏听记录</div>
-  <div class="side-sub">本地文件夹 · 顺序播放 · 定时收听 · 时长记录</div>
-  <button id="addBtn"><svg class="ic"><use href="#i-plus"/></svg><span id="addBtnText">添加文件夹</span></button>
+  <div class="brand"><h1>熏听机</h1><small>熏听记录</small></div>
+  <div class="side-sub">一盘磁带 · 一段熏听</div>
+  <button id="addBtn"><svg class="ic"><use href="#i-plus"/></svg><span id="addBtnText">装入新磁带</span></button>
   <button id="addFilesBtn" style="display:none">选择音频文件（少量）</button>
   <div id="albumList"></div>
-  <div class="side-foot">数据仅保存在本设备浏览器<br>不会上传任何文件</div>
+  <div class="side-foot">数据仅保存在本设备<br>不上传任何文件</div>
 </aside>
 
 <main id="main">
   <div id="topbar">
     <div class="tabs">
-      <button class="tab active" id="tab-play"><svg class="ic"><use href="#i-list"/></svg>播放</button>
-      <button class="tab" id="tab-stats"><svg class="ic"><use href="#i-chart"/></svg>统计</button>
+      <button class="tab active" id="tab-play"><svg class="ic"><use href="#i-list"/></svg>磁带</button>
+      <button class="tab" id="tab-stats"><svg class="ic"><use href="#i-chart"/></svg>账本</button>
       <button class="tab" id="tab-sched"><svg class="ic"><use href="#i-clock"/></svg>定时</button>
     </div>
     <div class="todayStat">今日 <b id="todayTop">0 分钟</b><span class="cum"> · 累计 <b id="totalTop">0 分钟</b></span></div>
@@ -218,41 +271,83 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
   <div id="banner"></div>
 
   <div id="content">
-    <!-- 播放 -->
     <section class="pane" id="pane-play">
       <div class="empty" id="emptyPlay">
-        <h3 id="emptyTitle">还没有专辑</h3>
-        <p id="emptyDesc">点击下方按钮选择一个本地文件夹，将自动识别其中（含子文件夹）的音频文件<br>支持 mp3 / m4a / aac / wav / flac / ogg / opus 等常见格式</p>
-        <button class="btn pri" id="emptyAdd"><svg class="ic"><use href="#i-folder"/></svg><span id="emptyAddText">添加第一个文件夹</span></button>
+        <div class="empty-tape">
+          <svg viewBox="0 0 40 26" style="width:100%;fill:none;stroke:#2B2419;stroke-width:1.1">
+            <rect x="1.5" y="1.5" width="37" height="23" rx="4.5"/>
+            <circle cx="13" cy="12" r="4.4"/><circle cx="27" cy="12" r="4.4"/>
+            <path d="M5.5 21.5h29"/><path d="M10.5 21.5l2-4M29.5 21.5l-2-4"/>
+          </svg>
+        </div>
+        <h3 id="emptyTitle">还没有装入磁带</h3>
+        <p id="emptyDesc">选择一个本地文件夹，把它装进这台熏听机<br>支持 mp3 / m4a / aac / wav / flac / ogg / opus 等常见格式</p>
+        <button class="btn pri" id="emptyAdd"><svg class="ic"><use href="#i-plus"/></svg><span id="emptyAddText">装入第一盘磁带</span></button>
       </div>
       <div id="playBox" style="display:none">
-        <div class="alb-head">
-          <h2 id="albTitle"></h2>
-          <div class="alb-actions">
-            <button class="btn" id="btnRescan"><svg class="ic"><use href="#i-refresh"/></svg>重新扫描</button>
-            <button class="btn" id="btnFromStart"><svg class="ic"><use href="#i-play"/></svg>从头播放</button>
-            <button class="btn" id="btnReset"><svg class="ic"><use href="#i-reset"/></svg>重置进度</button>
+        <div class="deck">
+          <div class="deck-top">
+            <span class="deck-flag">A 面</span>
+            <h2 id="albTitle"></h2>
+            <span class="deck-side" id="albMeta"></span>
+          </div>
+          <div class="cassette" id="cassette">
+            <svg class="tape-svg" viewBox="0 0 360 226" aria-hidden="true">
+              <rect x="4" y="4" width="352" height="218" rx="16" fill="#F7EDDA" stroke="#2B2419" stroke-width="2.5"/>
+              <rect x="16" y="16" width="328" height="194" rx="10" fill="none" stroke="#C9B99E" stroke-width="1"/>
+              <circle cx="28" cy="28" r="2.2" fill="#B9AB8F"/><circle cx="332" cy="28" r="2.2" fill="#B9AB8F"/>
+              <circle cx="28" cy="198" r="2.2" fill="#B9AB8F"/><circle cx="332" cy="198" r="2.2" fill="#B9AB8F"/>
+              <rect x="28" y="26" width="304" height="64" rx="6" fill="#FFFBF2" stroke="#C9B99E"/>
+              <rect x="28" y="104" width="304" height="86" rx="8" fill="#E9DFCB" stroke="#C9B99E"/>
+              <rect x="64" y="130" width="232" height="26" rx="13" fill="#8C4A22"/>
+              <g class="reel" style="transform-origin:118px 143px">
+                <circle cx="118" cy="143" r="34" fill="#FBF3E2" stroke="#2B2419" stroke-width="2"/>
+                <path d="M118 115v12M118 159v12M90 143h12M134 143h12" stroke="#2B2419" stroke-width="3"/>
+                <path d="M105 120l8 8M123 158l8 8M131 120l-8 8M113 158l-8 8" stroke="#B9AB8F" stroke-width="2"/>
+                <circle cx="118" cy="143" r="9" fill="#2B2419"/>
+              </g>
+              <g class="reel" style="transform-origin:242px 143px">
+                <circle cx="242" cy="143" r="34" fill="#FBF3E2" stroke="#2B2419" stroke-width="2"/>
+                <path d="M242 115v12M242 159v12M214 143h12M258 143h12" stroke="#2B2419" stroke-width="3"/>
+                <path d="M229 120l8 8M247 158l8 8M255 120l-8 8M237 158l-8 8" stroke="#B9AB8F" stroke-width="2"/>
+                <circle cx="242" cy="143" r="9" fill="#2B2419"/>
+              </g>
+              <rect x="140" y="198" width="80" height="7" rx="3.5" fill="#D8CBB2"/>
+            </svg>
+            <div class="tape-label">
+              <div class="tape-name" id="tapeName">未装入磁带</div>
+              <div class="tape-sub" id="tapeSub">选择一盘磁带，按下播放键</div>
+            </div>
+          </div>
+          <div class="deckbar">
+            <div class="counter"><span id="counter">00:00</span><em>计数器</em></div>
+            <div class="deck-actions">
+              <button class="btn" id="btnRescan"><svg class="ic"><use href="#i-refresh"/></svg>重新扫描</button>
+              <button class="btn" id="btnFromStart"><svg class="ic"><use href="#i-play"/></svg>从头播放</button>
+              <button class="btn" id="btnReset"><svg class="ic"><use href="#i-reset"/></svg>重置进度</button>
+            </div>
           </div>
         </div>
-        <div class="alb-meta" id="albMeta"></div>
-        <div class="thead"><div>#</div><div>文件</div><div>时长</div><div>已听</div><div>进度</div></div>
+        <div class="theader"><div>#</div><div>曲目</div><div>时长</div><div>已听</div><div>进度</div></div>
         <div id="trackList"></div>
       </div>
     </section>
 
-    <!-- 统计 -->
     <section class="pane" id="pane-stats">
-      <div class="sgrid">
-        <div class="scard"><div class="lab">今日收听</div><b id="sToday">0 分钟</b></div>
-        <div class="scard"><div class="lab">近 7 天合计</div><b id="s7">0 分钟</b></div>
-        <div class="scard"><div class="lab">累计收听</div><b id="sTotal">0 分钟</b></div>
+      <div class="ledger">
+        <div class="ledger-head"><h3>收听账本</h3><small>按真实收听时间记账</small></div>
+        <div class="sgrid">
+          <div class="scell"><div class="lab">今日</div><b id="sToday">0 分钟</b></div>
+          <div class="scell"><div class="lab">近 7 天</div><b id="s7">0 分钟</b></div>
+          <div class="scell"><div class="lab">累计</div><b id="sTotal">0 分钟</b></div>
+        </div>
       </div>
       <div class="card">
         <h3><svg class="ic"><use href="#i-chart"/></svg>近 7 天每日收听（分钟）</h3>
         <div class="bars" id="barsBox"></div>
       </div>
       <div class="card">
-        <h3><svg class="ic"><use href="#i-folder"/></svg>按文件夹统计</h3>
+        <h3><svg class="ic"><use href="#i-tape"/></svg>按磁带统计</h3>
         <div id="albTableBox"></div>
       </div>
       <div class="card">
@@ -265,18 +360,17 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
       </div>
     </section>
 
-    <!-- 定时 -->
     <section class="pane" id="pane-sched">
       <div class="card">
         <h3><svg class="ic"><use href="#i-clock"/></svg>每日定时开始
           <label class="sw"><input type="checkbox" id="schedDailyEn"><i></i></label>
         </h3>
         <div class="frow"><span>开始时间</span><input type="time" id="schedDailyAt"></div>
-        <p class="hint">到点自动继续播放当前选中的专辑（从上次进度续播）。需要本页面保持打开；错过时间不补播。</p>
+        <p class="hint">到点自动继续播放当前磁带（从上次进度续播）。需要本页面保持打开；错过时间不补播。</p>
       </div>
       <div class="card">
         <h3><svg class="ic"><use href="#i-clock"/></svg>单次收听时长上限</h3>
-        <div class="frow"><span>每次最多播</span><input type="number" id="schedLimit" min="0" max="600" step="1"> <span style="color:var(--sub)">分钟（0 为不限）</span></div>
+        <div class="frow"><span>每次最多听</span><input type="number" id="schedLimit" min="0" max="600" step="1"> <span style="color:var(--ink2)">分钟（0 为不限）</span></div>
         <p class="hint">连续收听达到上限后自动暂停并重新计数；手动点播放后重新开始计时。</p>
       </div>
       <div class="card">
@@ -290,8 +384,8 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
         <h3><svg class="ic"><use href="#i-list"/></svg>使用须知</h3>
         <ul>
           <li>定时功能只在页面保持打开时生效。建议把本应用添加到手机主屏幕并保持页面在后台。</li>
-          <li>浏览器限制自动出声：先用播放按钮手动播过一次之后，定时播放一般就能自动出声；若被拦截，页面会弹出提示，点一下播放即可。</li>
-          <li>重新打开页面后，若提示需要授权，点击左侧专辑即可恢复（统计与进度不会丢失）。</li>
+          <li>浏览器限制自动出声：先用播放键手动播过一次之后，定时播放一般就能自动出声；若被拦截，页面会弹出提示，点一下播放即可。</li>
+          <li>重新打开页面后，若提示需要授权，点击左侧磁带即可恢复（统计与进度不会丢失）。</li>
           <li>收听时长按真实时间累计，与倍速无关；数据全部存本机，不上传。</li>
         </ul>
       </div>
@@ -304,10 +398,10 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
     <div class="p-name" id="pName">未播放</div>
     <div class="p-alb" id="pAlb"></div>
   </div>
-  <div class="p-ctrl">
-    <button class="ibtn" id="btnPrev" title="上一首"><svg class="ic"><use href="#i-prev"/></svg></button>
-    <button class="ibtn main" id="btnPlay" title="播放 / 暂停"><svg class="ic" id="playIcon"><use href="#i-play"/></svg></button>
-    <button class="ibtn" id="btnNext" title="下一首"><svg class="ic"><use href="#i-next"/></svg></button>
+  <div class="keys">
+    <button class="key" id="btnPrev" title="上一曲"><svg class="ic"><use href="#i-prev"/></svg></button>
+    <button class="key main" id="btnPlay" title="播放 / 暂停"><svg class="ic" id="playIcon"><use href="#i-play"/></svg></button>
+    <button class="key" id="btnNext" title="下一曲"><svg class="ic"><use href="#i-next"/></svg></button>
   </div>
   <div id="pTime">0:00 / 0:00</div>
   <input type="range" id="seek" min="0" max="1000" value="0" title="播放进度">
@@ -318,7 +412,7 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
     <option value="1.5">1.5x</option>
     <option value="2">2.0x</option>
   </select>
-  <button class="ibtn txt" id="btnLoop" title="循环模式">列表循环</button>
+  <button class="ibtn" id="btnLoop" title="循环模式">列表循环</button>
   <div class="p-vol"><svg class="ic"><use href="#i-vol"/></svg><input type="range" id="vol" min="0" max="100" value="100" title="音量"></div>
   <div id="pLimit" style="display:none"></div>
 </footer>
@@ -326,15 +420,15 @@ input:focus,select:focus{outline:2px solid #F2D9BF;border-color:var(--acc)}
 <input type="file" id="filePick" multiple style="display:none">
 <div id="dlgOv">
   <div class="dlg">
-    <div class="dlg-t">给这批音频起个专辑名</div>
+    <div class="dlg-t">给这盘磁带走个名字</div>
     <input id="dlgInput" type="text" maxlength="40" placeholder="例如：三年级英语">
     <div class="dlg-b"><button id="dlgCancel" class="btn">取消</button><button id="dlgOk" class="btn pri">确定</button></div>
   </div>
 </div>
 <audio id="audio" preload="metadata"></audio>
 <div id="toast"></div>
-
 <script>
+
 /* ============ 基础工具 ============ */
 const $ = id => document.getElementById(id);
 function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -739,8 +833,9 @@ function renderAlbums(){
     else if (a.status === 'missing'){ dot = 'bad'; tip = '文件句柄丢失，请删除后重新添加'; }
     const cnt = a.status === 'ready' ? (a.tracks ? a.tracks.length : 0) : (st.count || 0);
     return '<div class="acard'+(a.id===curAlbumId?' active':'')+'" data-id="'+a.id+'" title="'+esc(tip)+'">'
-      + '<div class="an">'+esc(a.name)+'</div>'
-      + '<div class="am"><span class="dot '+dot+'"></span>'+cnt+' 首 · 累计 '+fmtHM(st.totalSec)+'</div>'
+      + '<svg class="tape-ico"><use href="#i-tape"/></svg>'
+      + '<div class="acard-main"><div class="an">'+esc(a.name)+'</div>'
+      + '<div class="am"><span class="dot '+dot+'"></span>'+cnt+' 首 · 累计 '+fmtHM(st.totalSec)+'</div></div>'
       + '<button class="del" data-del="'+a.id+'" title="删除专辑"><svg class="ic"><use href="#i-x"/></svg></button>'
       + '</div>';
   }).join('');
@@ -768,7 +863,7 @@ function renderTracks(){
     const idxCell = t.done
       ? '<span class="t-idx"><svg class="ic"><use href="#i-check"/></svg></span>'
       : '<span class="t-idx">'+(i+1)+'</span>';
-    return '<div class="trow'+(isCur?' playing':'')+'" data-i="'+i+'">'
+    return '<div class="trow'+(isCur?' playing':'')+(t.done?' done':'')+'" data-i="'+i+'">'
       + idxCell
       + '<div class="t-name" title="'+esc(t.path)+'">'+esc(stripExt(t.name))+'</div>'
       + '<div class="t-dur" data-durpath="'+esc(t.path)+'">'+(t.dur?fmtDur(t.dur):'--:--')+'</div>'
@@ -777,6 +872,7 @@ function renderTracks(){
       + '</div>';
   }).join('');
   box.innerHTML = html;
+  updateCassette();
 }
 function updateCurrentRow(){
   const a = curAlbum();
@@ -918,6 +1014,7 @@ function updatePlayerUI(){
   const loopTxt = { list:'列表循环', one:'单曲循环', none:'播完即停' };
   $('btnLoop').textContent = loopTxt[settings.loopMode] || '列表循环';
   updateLimitBadge();
+  updateCassette();
 }
 function updateLimitBadge(){
   const el = $('pLimit');
@@ -1369,6 +1466,25 @@ $('clearBtn').addEventListener('click', ()=>{
     try{ navigator.serviceWorker.register('./sw.js'); }catch(e){}
   }
 })();
+
+/* ============ 磁带视觉 ============ */
+function updateCassette(){
+  const a = curAlbum();
+  const t = a && curIdx >= 0 && a.tracks ? a.tracks[curIdx] : null;
+  const cass = document.getElementById('cassette');
+  if (cass) cass.classList.toggle('spinning', !!playing());
+  const tn = document.getElementById('tapeName');
+  if (tn) tn.textContent = (a && a.status === 'ready') ? a.name : '未装入磁带';
+  const ts = document.getElementById('tapeSub');
+  if (ts) ts.textContent = t ? ('A 面 · 第 ' + (curIdx + 1) + ' 首 · ' + stripExt(t.name)) : (a && a.status === 'ready' ? '按下播放键开始熏听' : '选择一盘磁带，按下播放键');
+  const c = document.getElementById('counter');
+  if (c){
+    let sec = 0;
+    if (audio.src && !audio.paused){ sec = audio.currentTime || 0; }
+    else if (t && t.pos){ sec = t.pos; }
+    c.textContent = pad2(Math.floor(sec/60)) + ':' + pad2(Math.floor(sec%60));
+  }
+}
 </script>
 </body>
 </html>
