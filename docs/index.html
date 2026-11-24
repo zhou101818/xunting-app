@@ -61,6 +61,10 @@ svg.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;str
 .tcard .t-top{display:flex;align-items:center;gap:8px}
 .tcard .t-holes{display:flex;gap:3px;flex:none}
 .tcard .t-holes i{width:6px;height:6px;border-radius:50%;background:rgba(43,36,25,.16)}
+.tcard .t-del{flex:none;width:30px;height:30px;border:1.5px solid #B4432B;background:#FBF3E2;color:#B4432B;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+.tcard .t-del:hover{background:#B4432B;color:#FBF3E2}
+.tcard .t-del:active{transform:scale(.92)}
+.tcard .t-del svg{width:14px;height:14px}
 .tcard .t-n{flex:1;min-width:0;font:600 14px/1.3 var(--serif);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tcard .t-mid{display:flex;gap:8px;align-items:center;margin-top:5px}
 .tcard .t-reels{flex:none;display:flex;gap:6px}
@@ -919,7 +923,8 @@ function renderAlbums(){
       + more
       + '<div class="tcard-del" data-del="'+a.id+'"><svg class="ic"><use href="#i-x"/></svg><span>抽出</span></div>'
       + '<div class="tcard'+(isCur?' sel':'')+'" data-id="'+a.id+'">'
-      + '<div class="t-top"><span class="t-holes"><i></i><i></i></span><div class="t-n">'+esc(a.name)+'</div></div>'
+      + '<div class="t-top"><span class="t-holes"><i></i><i></i></span><div class="t-n">'+esc(a.name)+'</div>'
+      + '<button class="t-del" data-del="'+a.id+'" title="删除磁带"><svg class="ic"><use href="#i-trash"/></svg></button></div>'
       + '<div class="t-mid"><span class="t-reels"><i></i><i></i></span><div class="t-sub">'+esc(sub)+'</div><span class="t-rabbit"></span></div>'
       + '</div>'
       + trackList
