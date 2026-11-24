@@ -83,6 +83,7 @@ svg.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;str
 .side-foot{padding:10px 18px 14px;border-top:1px solid var(--line);color:var(--ink2);font-size:11px;line-height:1.7}
 /* ===== 主区 ===== */
 #main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+#mTop{display:none}   /* 仅手机端显示 */
 #topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 0;gap:10px}
 .tabs{display:flex;gap:4px}
 .tab{border:none;background:transparent;padding:8px 14px;border-radius:9px;cursor:pointer;color:var(--ink2);display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font-family:var(--serif);letter-spacing:1px}
@@ -234,13 +235,29 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
 .t-tracks{display:none}
 @media (max-width:740px){
   body{flex-direction:column}
-  #side{width:100%;border-right:none;border-bottom:1px solid var(--line)}
-  .brand{padding:12px 14px 0}
-  .brand h1{font-size:18px}
-  .side-sub{display:none}
-  #addBtn{margin:8px 12px 8px;padding:8px 12px}
-  #albumList{display:block;overflow:visible;padding:10px 14px 14px;flex:none}
-  .tcard-wrap{margin:0 auto 30px;max-width:420px}
+  #side{display:none}   /* 手机端：侧栏整体隐藏，磁带列表动态注入磁带页 */
+  #main{flex:1;min-height:0;display:flex;flex-direction:column}
+  #mTop{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 4px}
+  #mTop .brand h1{margin:0;font:600 18px/1.2 var(--serif);letter-spacing:2px}
+  #mTop .brand small{font-size:9px}
+  #mTop .todayStat{font-size:11px}
+  #topbar{position:sticky;top:0;z-index:30;background:var(--paper);padding:8px 14px;display:flex;align-items:center;justify-content:center;gap:8px;border-bottom:1px solid var(--line)}
+  .tabs{display:flex;gap:6px;width:100%;max-width:420px}
+  .tab{flex:1;justify-content:center;padding:9px 0;font-size:13px}
+  .todayStat{display:none}
+  /* 手机端三整页 */
+  #content{flex:1;overflow:auto;padding:0 14px 150px;display:flex;flex-direction:column}
+  .pane{display:none;flex:1}
+  .pane.on{display:block}
+  /* 磁带页：顶部放磁带堆叠（动态注入） + 下曲曲目 */
+  #mTapeZone{margin:10px 0 4px}
+  #mTapeZone .brand{display:none}
+  #mTapeZone #albumList{display:block;overflow:visible;padding:6px 0 12px;flex:none}
+  #mTapeZone .tcard-wrap{margin:0 auto 30px;max-width:420px}
+  #mTapeZone #addBtn{margin:8px 0 12px}
+  #mTapeZone #addFilesBtn{margin:0 0 10px}
+  #mTapeZone .side-foot{display:none}
+  .empty{padding:40px 16px 20px}
   .side-foot{display:none}
   #topbar{padding:8px 14px 0}
   .todayStat{font-size:11.5px}
@@ -300,10 +317,11 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
 </aside>
 
 <main id="main">
+  <div id="mTop"><div class="brand"><h1>熏听机</h1><small>熏听记录</small></div><div class="todayStat">今日 <b id="todayTopM">0 分钟</b> · 累计 <b id="totalTopM">0 分钟</b></div></div>
   <div id="topbar">
     <div class="tabs">
       <button class="tab active" id="tab-play"><svg class="ic"><use href="#i-list"/></svg>磁带</button>
-      <button class="tab" id="tab-stats"><svg class="ic"><use href="#i-chart"/></svg>账本</button>
+      <button class="tab" id="tab-stats"><svg class="ic"><use href="#i-chart"/></svg>统计</button>
       <button class="tab" id="tab-sched"><svg class="ic"><use href="#i-clock"/></svg>定时</button>
     </div>
     <div class="todayStat">今日 <b id="todayTop">0 分钟</b><span class="cum"> · 累计 <b id="totalTop">0 分钟</b></span></div>
@@ -375,7 +393,7 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
 
     <section class="pane" id="pane-stats">
       <div class="ledger">
-        <div class="ledger-head"><h3>收听账本</h3><small>按真实收听时间记账</small></div>
+        <div class="ledger-head"><h3>收听统计</h3><small>按真实收听时间累计</small></div>
         <div class="sgrid">
           <div class="scell"><div class="lab">今日</div><b id="sToday">0 分钟</b></div>
           <div class="scell"><div class="lab">近 7 天</div><b id="s7">0 分钟</b></div>
@@ -1017,14 +1035,44 @@ function renderSched(){
 function updateTopbar(){
   $('todayTop').textContent = fmtHM(stats.byDay[todayKey()] || 0);
   $('totalTop').textContent = fmtHM(stats.totalSec);
+  const tm = $('todayTopM'), cm = $('totalTopM');
+  if (tm) tm.textContent = fmtHM(stats.byDay[todayKey()] || 0);
+  if (cm) cm.textContent = fmtHM(stats.totalSec);
 }
 function switchTab(name){
   for (const t of ['play','stats','sched']){
     $('tab-'+t).classList.toggle('active', t === name);
     $('pane-'+t).style.display = t === name ? 'block' : 'none';
   }
+  // 手机端：把磁带列表放进磁带页（三整页切换），桌面端留在侧栏
+  layoutMobile(name);
   if (name === 'stats') renderStats();
   if (name === 'sched') renderSched();
+}
+/* 手机端三整页：磁带列表注入磁带页顶部；统计/定时页独占全屏 */
+function layoutMobile(name){
+  const isMobile = window.matchMedia('(max-width:740px)').matches;
+  if (!isMobile) return;
+  const playPane = $('pane-play');
+  let zone = $('mTapeZone');
+  if (!zone){
+    zone = document.createElement('div');
+    zone.id = 'mTapeZone';
+    const side = $('side');
+    // 把侧栏的有用节点移进磁带页
+    playPane.insertBefore(zone, playPane.firstChild);
+    zone.appendChild($('addBtn'));
+    const afb = $('addFilesBtn');
+    if (afb) zone.appendChild(afb);
+    zone.appendChild($('albumList'));
+  }
+  // 切到非磁带页时隐藏磁带区（页面由 pane 自身 display 控制，无需额外处理）
+  // 统计/定时页切换后回到顶部
+  if (name !== 'play'){
+    const c = $('content');
+    if (c) c.scrollTop = 0;
+    window.scrollTo(0, 0);
+  }
 }
 
 /* ============ 媒体会话（锁屏/通知栏控制） ============ */
@@ -1647,7 +1695,7 @@ $('clearBtn').addEventListener('click', ()=>{
   if (saved && getAlbum(saved)) curAlbumId = saved;
   else if (albums.length) curAlbumId = albums[0].id;
   renderAlbums(); renderTracks(); renderStats(); renderSched();
-  switchTab('play');
+  switchTab('play');   // 内部会调 layoutMobile（手机端注入磁带列表到磁带页）
   updateTopbar(); updatePlayerUI();
   queueDurations();
   setupMediaSessionHandlers();
