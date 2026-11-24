@@ -49,20 +49,37 @@ svg.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;str
 #addBtn:active{transform:translateY(2px);box-shadow:none}
 #addFilesBtn{margin:0 14px 10px;display:none;background:transparent;border:1px dashed var(--line2);color:var(--ink2);border-radius:9px;padding:7px 10px;cursor:pointer;font-size:12px}
 #addFilesBtn:hover{border-color:var(--accent);color:var(--accent)}
-#albumList{flex:1;overflow:auto;padding:6px 10px 10px}
-.acard{position:relative;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:11px;cursor:pointer;border:1px solid transparent;margin-bottom:5px}
-.acard:hover{background:#F6EFE1;border-color:var(--line)}
-.acard.active{background:#EDDCBE;border-color:#CBAA7C;box-shadow:inset 3px 0 0 var(--accent)}
-.tape-ico{width:38px;height:26px;flex:none;color:var(--ink);opacity:.85}
-.acard.active .tape-ico{color:var(--accent-2)}
-.acard-main{min-width:0;flex:1}
-.acard .an{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px;line-height:1.4}
-.acard .am{font-size:11px;color:var(--ink2);display:flex;align-items:center;gap:5px;margin-top:2px;white-space:nowrap;overflow:hidden;line-height:1.4}
-.dot{width:7px;height:7px;border-radius:50%;flex:none;background:#C9C0AE}
-.dot.ok{background:var(--ok)} .dot.warn{background:#D89A3C} .dot.bad{background:var(--warn)}
-.acard .del{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:none;background:transparent;border-radius:7px;color:var(--ink2);cursor:pointer;display:none;align-items:center;justify-content:center}
-.acard:hover .del{display:flex}
-.acard .del:hover{background:#EADCC4;color:var(--warn)}
+#albumList{flex:1;overflow:auto;padding:8px 12px 12px;perspective:600px}
+/* 磁带卡：复古卡带造型 + 左侧抽出删除（侧滑手势） */
+.tcard-wrap{position:relative;margin-bottom:10px}
+.tcard-del{position:absolute;inset:0;left:0;width:76px;background:#8C2F22;border-radius:12px 12px 12px 12px;color:#FBEDE3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;opacity:0;transition:opacity .15s;z-index:1}
+.tcard-wrap.dragging .tcard-del{opacity:1}
+.tcard-del svg{width:18px;height:18px}
+.tcard{position:relative;z-index:2;background:var(--paper);border:2px solid #2B2419;border-radius:12px;padding:8px 12px 7px;cursor:pointer;transition:transform .18s;box-shadow:0 2px 0 rgba(43,36,25,.14);will-change:transform}
+.tcard:active{transform:scale(.985)}
+.tcard.sel{background:var(--accent-soft);border-color:var(--accent-2);box-shadow:0 3px 0 var(--accent-2)}
+.tcard .t-top{display:flex;align-items:center;gap:8px}
+.tcard .t-holes{display:flex;gap:3px;flex:none}
+.tcard .t-holes i{width:6px;height:6px;border-radius:50%;background:rgba(43,36,25,.16)}
+.tcard .t-n{flex:1;min-width:0;font:600 14px/1.3 var(--serif);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tcard .t-mid{display:flex;gap:8px;align-items:center;margin-top:5px}
+.tcard .t-reels{flex:none;display:flex;gap:6px}
+.tcard .t-reels i{width:14px;height:14px;border-radius:50%;border:2px solid #2B2419;background:#FBF3E2;display:block}
+.tcard.sel .t-reels i{border-color:var(--accent-2);animation:reelspin 3.4s linear infinite}
+.tcard .t-sub{flex:1;min-width:0;font-size:10.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tcard .t-rabbit{flex:none;width:34px;height:12px;border:2px solid #2B2419;border-radius:2px;position:relative;background:#FBF3E2}
+.tcard .t-rabbit:before{content:"";position:absolute;left:6px;right:6px;top:2px;bottom:2px;background:#8C4A22;border-radius:1px}
+/* 磁带内曲目（展开态） */
+.t-tracks{display:none;margin-top:6px;background:#FFFBF0;border:1px dashed var(--line2);border-radius:9px;padding:6px 10px}
+.t-track{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px dotted var(--line);cursor:pointer;font-size:12px}
+.t-track:last-child{border-bottom:none}
+.t-track .no{width:18px;text-align:center;color:var(--ink2);font:10.5px/1 "Courier New",monospace;flex:none}
+.t-track.done .no{color:var(--ok);font-weight:700}
+.t-track .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-track.done .nm{color:var(--ink2)}
+.t-track .du{flex:none;color:var(--ink2);font:10.5px/1 "Courier New",monospace}
+.t-track:hover .nm{color:var(--accent-2)}
+.t-more{padding:5px 2px;color:var(--ink2);font-size:10.5px;text-align:center}
 .side-foot{padding:10px 18px 14px;border-top:1px solid var(--line);color:var(--ink2);font-size:11px;line-height:1.7}
 /* ===== 主区 ===== */
 #main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
@@ -178,18 +195,20 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
 .sw input:checked + i:before{transform:translateX(18px)}
 .note ul{margin:6px 0 0;padding-left:18px;color:var(--ink2);font-size:12.5px;line-height:1.9}
 /* ===== 底部操控台 ===== */
-#player{display:flex;align-items:center;gap:12px;padding:9px 18px;position:fixed;left:272px;right:0;bottom:0;z-index:50;border-top:1px solid var(--line);background:rgba(251,247,238,.97);backdrop-filter:blur(6px)}
-.p-info{width:176px;min-width:120px}
-.p-name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}
-.p-alb{font-size:11px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.keys{display:flex;align-items:center;gap:6px}
-.key{width:40px;height:40px;border-radius:11px;border:1px solid var(--line2);background:var(--raise);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #D6C8AE;color:var(--ink)}
+#player{display:flex;align-items:center;gap:12px;padding:8px 18px;position:fixed;left:272px;right:0;bottom:0;z-index:50;border-top:1px solid var(--line);background:rgba(251,247,238,.97);backdrop-filter:blur(6px)}
+.keys{display:flex;align-items:center;gap:8px}
+.key{width:48px;height:48px;border-radius:13px;border:1px solid var(--line2);background:var(--raise);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #D6C8AE;color:var(--ink)}
+.key svg.ic{width:22px;height:22px}
 .key:hover{border-color:var(--accent);color:var(--accent-2)}
 .key:active{transform:translateY(2px);box-shadow:none}
-.key.main{width:52px;height:52px;background:var(--accent);color:#FBF3E2;border-color:var(--accent-2);box-shadow:0 3px 0 var(--accent-2)}
+/* 主播放键：加大、上移突出 */
+.key.main{width:64px;height:64px;background:var(--accent);color:#FBF3E2;border-color:var(--accent-2);box-shadow:0 4px 0 var(--accent-2);margin-top:-26px;position:relative;z-index:2}
 .key.main:hover{background:var(--accent-2)}
-.key.main svg{width:20px;height:20px}
+.key.main svg{width:30px;height:30px}
 .key.main:active{transform:translateY(3px);box-shadow:none}
+/* 下一盘磁带键 */
+.key.tape{border-color:var(--accent-2);color:var(--accent-2);background:var(--accent-soft)}
+.key.tape:hover{background:var(--accent);color:#FBF3E2}
 #pTime{font:11.5px/1 "Courier New",monospace;color:var(--ink2);white-space:nowrap;letter-spacing:.5px}
 #seek{flex:1;min-width:110px;accent-color:var(--accent)}
 #speed{width:64px}
@@ -207,6 +226,12 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
 #dlgInput{width:100%;border:1px solid var(--line2);border-radius:9px;padding:9px 12px;font:inherit;margin-bottom:14px;background:#fff;color:var(--ink)}
 #dlgInput:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
 .dlg-b{display:flex;gap:10px;justify-content:flex-end}
+/* ===== 磁带抽屉堆叠（全局） ===== */
+.tcard-wrap{position:relative;margin-bottom:34px;z-index:1}
+.drawer-back{position:absolute;left:12px;right:12px;top:18px;height:100%;border:2px solid #3A3122;border-radius:12px;background:#DFD2B6;z-index:0;pointer-events:none;box-shadow:0 3px 8px rgba(43,36,25,.15)}
+.drawer-back2{position:absolute;left:6px;right:6px;top:9px;height:100%;border:2px solid #3A3122;border-radius:12px;background:#D4C5A6;z-index:0;pointer-events:none}
+.tcard-wrap:last-child{margin-bottom:8px}
+.t-tracks{display:none}
 @media (max-width:740px){
   body{flex-direction:column}
   #side{width:100%;border-right:none;border-bottom:1px solid var(--line)}
@@ -214,9 +239,8 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
   .brand h1{font-size:18px}
   .side-sub{display:none}
   #addBtn{margin:8px 12px 8px;padding:8px 12px}
-  #albumList{display:flex;overflow-x:auto;overflow-y:hidden;padding:0 8px 10px;flex:none}
-  .acard{min-width:170px;flex:none;margin:0 6px 0 0;padding:8px 9px}
-  .acard .del{display:flex}
+  #albumList{display:block;overflow:visible;padding:10px 14px 14px;flex:none}
+  .tcard-wrap{margin:0 auto 30px;max-width:420px}
   .side-foot{display:none}
   #topbar{padding:8px 14px 0}
   .todayStat{font-size:11.5px}
@@ -230,6 +254,9 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
   .st th:nth-child(4),.st td:nth-child(4){display:none}
   #player{left:0;gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));flex-wrap:wrap;row-gap:6px}
   .p-info{flex:1 1 auto;width:auto;min-width:0}
+  .keys{flex:1 1 100%;order:1;justify-content:center;gap:10px}
+  .key{width:52px;height:52px}
+  .key.main{width:70px;height:70px;margin-top:-30px}
   #pTime{display:none}
   .p-vol{display:none}
   #speed{display:none}
@@ -237,7 +264,8 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
   #seek{flex:1 1 calc(100% - 84px);min-width:0;order:3}
   #btnLoop{order:4}
   .counter em{display:none}
-  #toast{bottom:90px}
+  #toast{bottom:110px}
+  #content{padding-bottom:170px}
 }
 </style>
 </head>
@@ -414,6 +442,13 @@ input:focus,select:focus{outline:2px solid #E4CBA4;border-color:var(--accent)}
     <button class="key" id="btnPrev" title="上一曲"><svg class="ic"><use href="#i-prev"/></svg></button>
     <button class="key main" id="btnPlay" title="播放 / 暂停"><svg class="ic" id="playIcon"><use href="#i-play"/></svg></button>
     <button class="key" id="btnNext" title="下一曲"><svg class="ic"><use href="#i-next"/></svg></button>
+    <button class="key tape" id="btnNextTape" title="下一盘磁带">
+      <svg viewBox="0 0 40 26" style="width:26px;height:17px;fill:none;stroke:currentColor;stroke-width:2">
+        <rect x="1.5" y="1.5" width="37" height="23" rx="4.5"/>
+        <circle cx="13" cy="12" r="4.4"/><circle cx="27" cy="12" r="4.4"/>
+        <path d="M5.5 21.5h29"/>
+      </svg>
+    </button>
   </div>
   <div id="pTime">0:00 / 0:00</div>
   <input type="range" id="seek" min="0" max="1000" value="0" title="播放进度">
@@ -834,21 +869,42 @@ async function pumpDur(){
 function renderAlbums(){
   const box = $('albumList');
   if (albums.length === 0){
-    box.innerHTML = '<div style="padding:14px;color:var(--sub);font-size:12px">'+(HAS_DIR ? '暂无专辑，点击上方按钮添加文件夹' : '暂无歌单，点击上方按钮选择音频文件')+'</div>';
+    box.innerHTML = '<div style="padding:14px;color:var(--sub);font-size:12px">'+(HAS_DIR ? '暂无磁带，点上方按钮装入新磁带' : '暂无磁带，点上方按钮选择音频文件')+'</div>';
     return;
   }
-  box.innerHTML = albums.map(a=>{
+  // 抽屉堆叠：当前播放磁带抽到最上层（首位），其余叠在后面
+  const sorted = albums.slice();
+  const curIdx2 = sorted.findIndex(a=>a.id === curAlbumId);
+  if (curIdx2 > 0) sorted.unshift(sorted.splice(curIdx2, 1)[0]);
+  box.innerHTML = sorted.map(a=>{
     const st = albumStats(a.id);
-    let dot = 'ok', tip = '正常';
-    if (a.status === 'scanning'){ dot = 'warn'; tip = '扫描中'; }
-    else if (a.status === 'auth'){ dot = 'warn'; tip = '需要重新授权，点击恢复'; }
-    else if (a.status === 'missing'){ dot = 'bad'; tip = '文件句柄丢失，请删除后重新添加'; }
     const cnt = a.status === 'ready' ? (a.tracks ? a.tracks.length : 0) : (st.count || 0);
-    return '<div class="acard'+(a.id===curAlbumId?' active':'')+'" data-id="'+a.id+'" title="'+esc(tip)+'">'
-      + '<svg class="tape-ico"><use href="#i-tape"/></svg>'
-      + '<div class="acard-main"><div class="an">'+esc(a.name)+'</div>'
-      + '<div class="am"><span class="dot '+dot+'"></span>'+cnt+' 首 · 累计 '+fmtHM(st.totalSec)+'</div></div>'
-      + '<button class="del" data-del="'+a.id+'" title="删除专辑"><svg class="ic"><use href="#i-x"/></svg></button>'
+    let sub = cnt + ' 首 · 累计 ' + fmtHM(st.totalSec);
+    if (a.status === 'scanning') sub = '扫描中…';
+    else if (a.status === 'auth') sub = '需重新授权 · 点击恢复';
+    else if (a.status === 'missing') sub = '句柄丢失 · 请删除重加';
+    const more = a === sorted[sorted.length - 1] ? '' : '<span class="drawer-back"></span>' + (sorted.length > 2 ? '<span class="drawer-back2"></span>' : '');
+    // 展开态：点过的磁带显示内部曲目（磁带内曲目标签）
+    let trackList = '';
+    const isCur = a.id === curAlbumId;
+    if (a.tracks && a.tracks.length){
+      trackList = '<div class="t-tracks"' + (isCur ? ' style="display:block"' : '') + '>'
+        + a.tracks.slice(0, 30).map((t, i)=>
+          '<div class="t-track'+(t.done ? ' done' : '')+'" data-track="'+i+'" data-tape="'+a.id+'">'
+          + '<span class="no">'+(t.done ? '✓' : (i+1))+'</span>'
+          + '<span class="nm">'+esc(stripExt(t.name))+'</span>'
+          + '<span class="du">'+(t.dur ? fmtDur(t.dur) : '--:--')+'</span>'
+          + '</div>').join('') + (a.tracks.length > 30 ? '<div class="t-more">… 还有 ' + (a.tracks.length - 30) + ' 首，进磁带页查看全部</div>' : '')
+        + '</div>';
+    }
+    return '<div class="tcard-wrap" data-id="'+a.id+'">'
+      + more
+      + '<div class="tcard-del" data-del="'+a.id+'"><svg class="ic"><use href="#i-x"/></svg><span>抽出</span></div>'
+      + '<div class="tcard'+(isCur?' sel':'')+'" data-id="'+a.id+'">'
+      + '<div class="t-top"><span class="t-holes"><i></i><i></i></span><div class="t-n">'+esc(a.name)+'</div></div>'
+      + '<div class="t-mid"><span class="t-reels"><i></i><i></i></span><div class="t-sub">'+esc(sub)+'</div><span class="t-rabbit"></span></div>'
+      + '</div>'
+      + trackList
       + '</div>';
   }).join('');
 }
@@ -1116,6 +1172,23 @@ function nextIdx(a, dir){
   return i;
 }
 $('btnPlay').addEventListener('click', togglePlay);
+/* 下一盘磁带：跳到磁带列表的下一盘并从头播放 */
+$('btnNextTape').addEventListener('click', async ()=>{
+  if (!albums.length){ toast('还没有装入磁带'); return; }
+  const i = albums.findIndex(a=>a.id === curAlbumId);
+  const next = albums[(i + 1 + albums.length) % albums.length] || albums[0];
+  if (next.id === curAlbumId && albums.length === 1){ toast('只有这一盘磁带'); return; }
+  if (next.status === 'auth'){
+    const ok = await ensurePerm(next);
+    if (!ok) return;
+  }
+  if (next.status === 'missing' || !next.tracks || !next.tracks.length){ toast('「'+next.name+'」不可播放，换下一盘试试'); return; }
+  curAlbumId = next.id;
+  saveAll();
+  renderAlbums();
+  toast('换带：' + next.name, 'ok');
+  await playTrack(next, 0, false);
+});
 $('btnPrev').addEventListener('click', ()=>{
   const a = curAlbum();
   if (!a || !a.tracks || !a.tracks.length) return;
@@ -1305,13 +1378,15 @@ $('addBtn').addEventListener('click', addFolder);
 $('emptyAdd').addEventListener('click', addFolder);
 $('addFilesBtn').addEventListener('click', nativePickFiles);
 $('filePick').addEventListener('change', onFilesPicked);
+/* 磁带卡交互：点击 = 选中并进曲目；红色「抽出」= 删除（侧滑由专门手势层处理） */
 $('albumList').addEventListener('click', async e=>{
+  if (window.__tapeSwiped && window.__tapeSwiped()) return;  // 侧滑刚触发，忽略合成点击
   const del = e.target.closest('[data-del]');
   if (del){
     const id = del.getAttribute('data-del');
     const a = getAlbum(id);
     if (!a) return;
-    if (!confirm('删除专辑「'+a.name+'」？\n将同时删除该专辑的收听统计与播放进度，音频文件不受影响。')) return;
+    if (!confirm('抽出磁带「'+a.name+'」？\n将删除该磁带的收听统计与播放进度，音频文件不受影响。')) return;
     const idx = albums.indexOf(a);
     if (idx >= 0) albums.splice(idx, 1);
     delete stats.albums[id];
@@ -1333,20 +1408,121 @@ $('albumList').addEventListener('click', async e=>{
     renderAlbums(); renderTracks(); updateTopbar(); updatePlayerUI();
     return;
   }
-  const card = e.target.closest('.acard');
+  const card = e.target.closest('.tcard');
   if (!card) return;
-  const a = getAlbum(card.getAttribute('data-id'));
+  const wrap = card.parentElement;
+  const id = card.getAttribute('data-id');
+  const a = getAlbum(id);
   if (!a) return;
+  // 展开曲目：如果已展开且已选中 → 收起；否则展开并把磁带抽到顶层
+  const list = wrap.querySelector('.t-tracks');
+  if (list && id === curAlbumId){
+    list.style.display = list.style.display === 'block' ? 'none' : 'block';
+    return;   // 已是当前磁带：只切换展开
+  }
   if (a.status === 'auth'){
     const ok = await ensurePerm(a);
     if (!ok) return;
   }
-  if (a.status === 'missing'){ toast(a.kind === 'files' ? '该专辑的音频缓存丢失，请删除后重新选择' : '该专辑句柄丢失，请删除后重新添加'); return; }
-  curAlbumId = a.id;
+  if (a.status === 'missing'){ toast(a.kind === 'files' ? '该磁带的音频缓存丢失，请删除后重新选择' : '该磁带句柄丢失，请删除后重新添加'); return; }
+  curAlbumId = a.id;          // 抽到最上层
   saveAll();
   renderAlbums(); renderTracks(); switchTab('play');
+  // 确保抽到顶层的磁带对用户可见（不被侧栏头部遮挡）
+  setTimeout(()=>{ const sel = document.querySelector('.tcard.sel'); if (sel) sel.scrollIntoView({block: 'nearest'}); }, 50);
   queueDurations();
 });
+/* 点击磁带卡内曲目 = 直接播放该曲目 */
+$('albumList').addEventListener('click', async e=>{
+  const track = e.target.closest('.t-track');
+  if (!track) return;
+  if (window.__tapeSwiped && window.__tapeSwiped()) return;
+  const tapeId = track.getAttribute('data-tape');
+  const a = getAlbum(tapeId);
+  if (!a || !a.tracks) return;
+  const i = parseInt(track.getAttribute('track') === null ? track.getAttribute('data-track') : track.getAttribute('track'), 10);
+  if (!(i >= 0)) return;
+  if (a.status === 'auth'){
+    const ok = await ensurePerm(a);
+    if (!ok) return;
+  }
+  curAlbumId = tapeId;
+  saveAll();
+  renderAlbums();
+  await playTrack(a, i, true);
+});
+/* 磁带卡侧滑抽出：向右拖露出删除区，拖过 60px 直接触发删除确认 */
+(function(){
+  const box = $('albumList');
+  let dragCard = null, startX = 0, startY = 0, curDX = 0, horizontal = null;
+  let justSwiped = false;   // 刚发生侧滑，拦截随后合成的 click
+  window.__tapeSwiped = ()=> justSwiped;
+  function reset(){
+    if (dragCard){
+      dragCard.style.transform = '';
+      if (dragCard.parentElement) dragCard.parentElement.classList.remove('dragging');
+    }
+    dragCard = null; curDX = 0; horizontal = null;
+  }
+  box.addEventListener('pointerdown', e=>{
+    const card = e.target.closest('.tcard');
+    if (!card) return;
+    dragCard = card;
+    startX = e.clientX; startY = e.clientY; curDX = 0; horizontal = null;
+  });
+  box.addEventListener('pointermove', e=>{
+    if (!dragCard) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (horizontal === null && (Math.abs(dx) > 10 || Math.abs(dy) > 10)){
+      horizontal = Math.abs(dx) > Math.abs(dy);
+    }
+    if (!horizontal) return;
+    curDX = Math.max(0, Math.min(96, dx));
+    dragCard.style.transform = 'translateX(' + curDX + 'px)';
+    dragCard.parentElement.classList.toggle('dragging', curDX > 20);
+    if (e.cancelable) e.preventDefault();
+  });
+  box.addEventListener('pointerup', async e=>{
+    if (!dragCard) return;
+    const wrap = dragCard.parentElement;
+    const id = dragCard.getAttribute('data-id');
+    if (horizontal && curDX > 60){
+      justSwiped = true;
+      setTimeout(()=>{ justSwiped = false; }, 400);
+      reset();
+      // 直接执行删除确认流程
+      const a = getAlbum(id);
+      if (a && confirm('抽出磁带「'+a.name+'」？\n将删除该磁带的收听统计与播放进度，音频文件不受影响。')){
+        const idx = albums.indexOf(a);
+        if (idx >= 0) albums.splice(idx, 1);
+        delete stats.albums[id];
+        if (a.kind === 'files'){ try{ await idbDel('files:'+id); }catch(err){} }
+        if (a.kind === 'native'){
+          try{ await idbDel('files:'+id); }catch(err){}
+          const FI = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.FolderImport;
+          if (FI){ try{ await FI.removeAlbum({ albumId: id }); }catch(err){} }
+        }
+        if (curAlbumId === id){
+          audio.pause();
+          if (curUrl){ URL.revokeObjectURL(curUrl); curUrl = ''; }
+          audio.removeAttribute('src');
+          curIdx = -1;
+          curAlbumId = albums.length ? albums[0].id : '';
+        }
+        await persistHandles();
+        saveAll();
+        renderAlbums(); renderTracks(); updateTopbar(); updatePlayerUI();
+      }
+      return;
+    }
+    if (horizontal){
+      justSwiped = true;
+      setTimeout(()=>{ justSwiped = false; }, 300);
+    }
+    reset();
+  });
+  box.addEventListener('pointercancel', reset);
+})();
 $('trackList').addEventListener('click', e=>{
   const row = e.target.closest('.trow');
   if (!row) return;
